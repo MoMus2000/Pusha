@@ -1,20 +1,22 @@
-enum OpCode {
+mod lexer;
+use std::{error::Error, fs, io::Read};
+
+use crate::lexer::Lexer;
+
+pub enum OpCode {
     OpPush(i64),
     OpAdd,
     OpSub,
     OpDump,
 }
 
-impl OpCode {
-    fn compile(&self) {}
-}
-
-struct Program {
+pub struct Program {
     source_code: Vec<OpCode>,
 }
 
 impl Program {
-    fn run_simulation(&self) {
+    fn run_compilation(&self) {}
+    fn run_simulation(&self) -> Result<(), Box<dyn Error>> {
         let mut stack: Vec<i64> = vec![];
         for token in &self.source_code {
             match token {
@@ -35,16 +37,19 @@ impl Program {
                 }
             }
         }
+        Ok(())
     }
 }
 
-fn main() {
-    let mut source_code: Vec<OpCode> = Vec::new();
-    source_code.push(OpCode::OpPush(5));
-    source_code.push(OpCode::OpPush(6));
-    source_code.push(OpCode::OpAdd);
-    source_code.push(OpCode::OpDump);
+fn main() -> Result<(), Box<dyn Error>> {
+    let mut source_code = String::new();
+    fs::File::open("./examples/test.psh")?.read_to_string(&mut source_code)?;
+    let lexer = Lexer { source_code };
+    let tokens = lexer.lex();
 
-    let program = Program { source_code };
+    let program = Program {
+        source_code: tokens,
+    };
     program.run_simulation();
+    Ok(())
 }
