@@ -106,46 +106,6 @@ impl Program {
         temp_file.write(b"mov rdi, 1\n")?;
         temp_file.write(b"syscall\n")?;
 
-        let output = Command::new("nasm")
-            .args(vec!["-f", "elf64", "output.asm"])
-            .stdout(Stdio::piped()) // Capture standard output
-            .stderr(Stdio::piped())
-            .output()?;
-
-        let stderr = String::from_utf8_lossy(&output.stderr);
-
-        // Print any error messages
-        if !stderr.is_empty() {
-            eprintln!("Error:\n{}", stderr);
-            exit(1)
-        }
-
-        let output = Command::new("ld")
-            .args(vec!["-o", "output", "output.o"])
-            .stdout(Stdio::piped()) // Capture standard output
-            .stderr(Stdio::piped())
-            .output()?;
-
-        let stderr = String::from_utf8_lossy(&output.stderr);
-
-        // Print any error messages
-        if !stderr.is_empty() {
-            eprintln!("Error:\n{}", stderr);
-            exit(1)
-        }
-
-        let output = Command::new("rm")
-            .args(vec!["output.asm", "output.o"])
-            .stdout(Stdio::piped()) // Capture standard output
-            .stderr(Stdio::piped())
-            .output()?;
-
-        // Print any error messages
-        if !stderr.is_empty() {
-            eprintln!("Error:\n{}", stderr);
-            exit(1)
-        }
-
         Ok(())
     }
 
@@ -197,6 +157,45 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "com" => {
             program.run_compilation()?;
+            let output = Command::new("nasm")
+                .args(vec!["-f", "elf64", "output.asm"])
+                .stdout(Stdio::piped()) // Capture standard output
+                .stderr(Stdio::piped())
+                .output()?;
+
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            // Print any error messages
+            if !stderr.is_empty() {
+                eprintln!("Error:\n{}", stderr);
+                exit(1)
+            }
+
+            let output = Command::new("ld")
+                .args(vec!["-o", "output", "output.o"])
+                .stdout(Stdio::piped()) // Capture standard output
+                .stderr(Stdio::piped())
+                .output()?;
+
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            // Print any error messages
+            if !stderr.is_empty() {
+                eprintln!("Error:\n{}", stderr);
+                exit(1)
+            }
+
+            let output = Command::new("rm")
+                .args(vec!["output.asm", "output.o"])
+                .stdout(Stdio::piped()) // Capture standard output
+                .stderr(Stdio::piped())
+                .output()?;
+
+            // Print any error messages
+            if !stderr.is_empty() {
+                eprintln!("Error:\n{}", stderr);
+                exit(1)
+            }
         }
         _ => {
             usage(program_name);
