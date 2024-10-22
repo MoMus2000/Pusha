@@ -30,21 +30,79 @@ impl Program {
     }
 
     fn run_compilation(&self) -> Result<(), Box<dyn Error>> {
-        let mut temp_file = tempfile::tempfile()?;
+        let mut temp_file = fs::File::create("./output.asm")?;
         temp_file.write(b"section .text\n")?;
-        temp_file.write(b"  global _start")?;
+
+        // Shameless copy from tsoding..
+        temp_file.write(b"dump:\n")?;
+        temp_file.write(b"    mov     r9, -3689348814741910323\n")?;
+        temp_file.write(b"    sub     rsp, 40\n")?;
+        temp_file.write(b"    mov     BYTE [rsp+31], 10\n")?;
+        temp_file.write(b"    lea     rcx, [rsp+30]\n")?;
+        temp_file.write(b".L2:\n")?;
+        temp_file.write(b"    mov     rax, rdi\n")?;
+        temp_file.write(b"    lea     r8, [rsp+32]\n")?;
+        temp_file.write(b"    mul     r9\n")?;
+        temp_file.write(b"    mov     rax, rdi\n")?;
+        temp_file.write(b"    sub     r8, rcx\n")?;
+        temp_file.write(b"    shr     rdx, 3\n")?;
+        temp_file.write(b"    lea     rsi, [rdx+rdx*4]\n")?;
+        temp_file.write(b"    add     rsi, rsi\n")?;
+        temp_file.write(b"    sub     rax, rsi\n")?;
+        temp_file.write(b"    add     eax, 48\n")?;
+        temp_file.write(b"    mov     BYTE [rcx], al\n")?;
+        temp_file.write(b"    mov     rax, rdi\n")?;
+        temp_file.write(b"    mov     rdi, rdx\n")?;
+        temp_file.write(b"    mov     rdx, rcx\n")?;
+        temp_file.write(b"    sub     rcx, 1\n")?;
+        temp_file.write(b"    cmp     rax, 9\n")?;
+        temp_file.write(b"    ja      .L2\n")?;
+        temp_file.write(b"    lea     rax, [rsp+32]\n")?;
+        temp_file.write(b"    mov     edi, 1\n")?;
+        temp_file.write(b"    sub     rdx, rax\n")?;
+        temp_file.write(b"    xor     eax, eax\n")?;
+        temp_file.write(b"    lea     rsi, [rsp+32+rdx]\n")?;
+        temp_file.write(b"    mov     rdx, r8\n")?;
+        temp_file.write(b"    mov     rax, 1\n")?;
+        temp_file.write(b"    syscall\n")?;
+        temp_file.write(b"    add     rsp, 40\n")?;
+        temp_file.write(b"    ret\n")?;
+
+        temp_file.write(b"  global _start\n")?;
         temp_file.write(b"_start:\n")?;
-        temp_file.write(b"mov rax, 60\n")?;
-        temp_file.write(b"xor rdi, rdi\n")?;
-        temp_file.write(b"syscall\n")?;
         for token in &self.tokens {
             match token {
-                OpCode::OpAdd => {}
-                OpCode::OpPush(i) => {}
-                OpCode::OpSub => {}
-                OpCode::OpDump => {}
+                OpCode::OpAdd => {
+                    temp_file.write(b";; -- plus -- \n")?;
+                    temp_file.write(b"pop rax\n")?;
+                    temp_file.write(b"pop rbx\n")?;
+                    temp_file.write(b"add rax, rbx\n")?;
+                    temp_file.write(b"push rax\n")?;
+                }
+                OpCode::OpPush(i) => {
+                    temp_file.write(b";; -- push -- \n")?;
+                    temp_file.write(format!("push {}", i).as_bytes())?;
+                }
+                OpCode::OpSub => {
+                    temp_file.write(b";; -- sub -- \n")?;
+                    temp_file.write(b"pop rax\n")?;
+                    temp_file.write(b"pop rbx\n")?;
+                    temp_file.write(b"sub rbx, rax\n")?;
+                    temp_file.write(b"push rbx\n")?;
+                }
+                OpCode::OpDump => {
+                    temp_file.write(b";; -- dump -- \n")?;
+                    temp_file.write(b"pop rdi\n")?; // Convention to provide function arguments in rdi
+                    temp_file.write(b"call dump\n")?; // Convention to provide function arguments in rdi
+                }
+                _ => {
+                    panic!("Unreachable")
+                }
             }
         }
+        temp_file.write(b"mov rax, 60\n")?;
+        temp_file.write(b"mov rdi, 1\n")?;
+        temp_file.write(b"syscall\n")?;
         Ok(())
     }
 
