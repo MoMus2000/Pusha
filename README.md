@@ -1,6 +1,6 @@
-# Pusha - Stack Based Programming Language - Compiled to Native code on Linux
+### Pusha - Stack Based Programming Language - Compiled to Native code on Linux
 
-## Examples
+#### Examples
 
 ```bash
 
