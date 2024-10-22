@@ -99,6 +99,18 @@ impl Program {
                     temp_file.write(b"pop rdi\n")?; // Convention to provide function arguments in rdi
                     temp_file.write(b"call dump\n")?; // Convention to provide function arguments in rdi
                 }
+                OpCode::OpEq => {
+                    temp_file.write(b";; -- eq -- \n")?;
+                    temp_file.write(b"mov rcx, 0\n")?;
+                    temp_file.write(b"mov rdx, 1\n")?;
+                    temp_file.write(b"pop rax\n")?;
+                    temp_file.write(b"pop rbx\n")?;
+                    //If RAX is equal to RBX, the Zero Flag (ZF) is set.
+                    temp_file.write(b"cmp rax, rbx\n")?;
+                    // This instruction conditionally moves
+                    // the value in RDX (which is 1) into RCX if the Zero Flag (ZF) is set
+                    temp_file.write(b"cmove rcx, rdx\n")?;
+                }
                 _ => {
                     panic!("Unreachable")
                 }
@@ -136,7 +148,14 @@ impl Program {
                     let b = stack.pop().unwrap();
                     stack.push((a == b) as i64);
                 }
-                OpCode::OpIf((predicate, end)) => {}
+                OpCode::OpIf((predicate, end)) => {
+                    let predicate = stack.pop().unwrap();
+                    if predicate == 1 {
+                        // do something
+                    } else {
+                        // go the end index
+                    }
+                }
                 OpCode::OpEnd => {}
             }
         }
