@@ -8,4 +8,6 @@ cargo r -- sim ./examples/test.psh
 
 cargo r -- com ./examples/test.psh
 
+./output
+
 ```
