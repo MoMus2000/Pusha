@@ -1,0 +1,7 @@
+[build]
+rustflags = ["-Awarnings"]
+
+[alias]
+r = "run --quiet"
+b = "build --quiet"
+t = "test --quiet"
