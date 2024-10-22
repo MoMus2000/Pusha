@@ -14,6 +14,9 @@ pub enum OpCode {
     OpAdd,
     OpSub,
     OpDump,
+    OpEq,
+    OpIf((i64, i64)),
+    OpEnd,
 }
 
 pub struct Program {
@@ -128,6 +131,13 @@ impl Program {
                     let a = stack.pop().unwrap();
                     println!("{}", a);
                 }
+                OpCode::OpEq => {
+                    let a = stack.pop().unwrap();
+                    let b = stack.pop().unwrap();
+                    stack.push((a == b) as i64);
+                }
+                OpCode::OpIf((predicate, end)) => {}
+                OpCode::OpEnd => {}
             }
         }
         Ok(())

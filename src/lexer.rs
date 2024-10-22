@@ -14,6 +14,9 @@ impl Lexer {
                     "+" => tokens.push(OpCode::OpAdd),
                     "-" => tokens.push(OpCode::OpSub),
                     "." => tokens.push(OpCode::OpDump),
+                    "end" => tokens.push(OpCode::OpEnd),
+                    "if" => tokens.push(OpCode::OpIf((0, 0))),
+                    "=" => tokens.push(OpCode::OpEq),
                     _ => {
                         if let Ok(number) = token.parse::<i64>() {
                             tokens.push(OpCode::OpPush(number));
